@@ -1,6 +1,7 @@
 package com.digitazon.TodoList.entities;
 
 import javax.persistence.*;
+import java.util.List;
 
 
 @Entity
@@ -12,6 +13,8 @@ public class Category {
     private int id;
     private String name;
     private String color;
+    @OneToMany(mappedBy = "category")
+    private List<Task> tasks;
 
     public Category() {
     }
@@ -22,4 +25,27 @@ public class Category {
         this.color = color;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
 }
