@@ -25,6 +25,10 @@ public class Task {
         return id;
     }
 
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
     public String getName() {
         return name;
     }
