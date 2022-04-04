@@ -28,6 +28,15 @@ public class Category {
         this.color = color;
     }
 
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", color='" + color + '\'' +
+                '}';
+    }
+
     public List<Task> getTasks() {
         return tasks;
     }

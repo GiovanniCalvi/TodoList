@@ -1,8 +1,11 @@
 package com.digitazon.TodoList.controllers;
 
+import com.digitazon.TodoList.entities.Category;
 import com.digitazon.TodoList.entities.Task;
+import com.digitazon.TodoList.repositories.CategoryRepository;
 import com.digitazon.TodoList.repositories.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController //a tempo di compilazione le annotazioni scrivono del codice per noi (non tutte)
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController {
     @Autowired
     private TaskRepository taskRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     /*public TaskController(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -19,7 +24,7 @@ public class TaskController {
     //@RequestMapping(value = "/", method = RequestMethod.GET)
     @GetMapping("/")
     public Iterable<Task> home() {
-        Iterable<Task> tasks = taskRepository.findAll();
+        Iterable<Task> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, "created"));
         System.out.println(tasks);
         return tasks;
     }
@@ -31,7 +36,10 @@ public class TaskController {
 
     @PostMapping("/add")
     public Task create(@RequestBody Task newTask) {
-        return taskRepository.save(newTask);
+        Task savedTask = taskRepository.save(newTask);
+        Category category = categoryRepository.findById(savedTask.getCategory().getId()).orElseThrow();
+        savedTask.setCategory(category);
+        return savedTask;
     }
 
     @DeleteMapping("/{id}")
@@ -41,11 +49,26 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public Task update(@PathVariable int id, @RequestBody Task updatedTask) {
+    public Task update(@PathVariable int id, @RequestBody Task updatedTask) throws Exception {
         Task task = taskRepository.findById(id).orElseThrow();
-        task.setDone(updatedTask.isDone());
+        if (task.isDone()) {
+            throw new Exception("cannot update done task");
+        }
         task.setName(updatedTask.getName());
         return taskRepository.save(task);
+    }
+
+    @PutMapping("/{id}/set-done")
+    public Task setDone(@PathVariable int id, @RequestBody Task updatedTask) {
+        Task task = taskRepository.findById(id).orElseThrow();
+        task.setDone(updatedTask.isDone());
+        return taskRepository.save(task);
+    }
+
+    @DeleteMapping("/delete-all")
+    public String deleteAll() {
+        taskRepository.deleteAll();
+        return "ok";
     }
 
     @PostMapping("/{id}/delete")
